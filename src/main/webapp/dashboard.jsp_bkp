@@ -1,0 +1,101 @@
+<%@ page import="model.User, java.util.Map" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+        response.sendRedirect(request.getContextPath() + "/login.jsp");
+        return;
+    }
+    
+    Integer totalProjects = (Integer) request.getAttribute("totalProjects");
+    Integer totalTasks = (Integer) request.getAttribute("totalTasks");
+    Map<String, Integer> taskStatusDistribution = (Map<String, Integer>) request.getAttribute("taskStatusDistribution");
+    
+    if (totalProjects == null) totalProjects = 0;
+    if (totalTasks == null) totalTasks = 0;
+%>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - Task Manager</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .stats { display: flex; gap: 20px; margin: 20px 0; }
+        .stat-box { border: 1px solid #ccc; padding: 15px; min-width: 150px; }
+        .nav { margin-bottom: 20px; }
+    </style> -->
+    <!-- Prevent caching -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+	<%
+	    String contextPath = request.getContextPath();
+	%>
+	<link rel="stylesheet" href="<%= contextPath %>/css/style.css">
+	<script src="${pageContext.request.contextPath}/js/noback.js"></script>
+</head>
+<body>
+    <div class="nav">
+        <h2>Welcome, <%= user.getUsername() %></h2>
+        <a href="${pageContext.request.contextPath}/projects">Projects</a> | 
+        <a href="${pageContext.request.contextPath}/logout">Logout</a>
+    </div>
+    
+    <h3>Dashboard Overview</h3>
+    
+    <div class="stats">
+        <div class="stat-box">
+            <h4>Total Projects</h4>
+            <p><%= totalProjects %></p>
+        </div>
+        <div class="stat-box">
+            <h4>Total Tasks</h4>
+            <p><%= totalTasks %></p>
+        </div>
+    </div>
+    
+    <h4>Task Status Distribution</h4>
+    <canvas id="statusChart" width="400" height="200"></canvas>
+    
+    <script>
+        const ctx = document.getElementById('statusChart').getContext('2d');
+        const statusChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['To Do', 'In Progress', 'Done'],
+                datasets: [{
+                    label: 'Task Count',
+                    data: [
+                        <%= taskStatusDistribution != null ? taskStatusDistribution.getOrDefault("todo", 0) : 0 %>,
+                        <%= taskStatusDistribution != null ? taskStatusDistribution.getOrDefault("in_progress", 0) : 0 %>,
+                        <%= taskStatusDistribution != null ? taskStatusDistribution.getOrDefault("done", 0) : 0 %>
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(75, 192, 192, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(54, 162, 235)',
+                        'rgb(75, 192, 192)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

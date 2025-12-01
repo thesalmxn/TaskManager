@@ -1,0 +1,100 @@
+<%@ page import="model.User, model.Project, java.util.List" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+        response.sendRedirect(request.getContextPath() + "/login.jsp");
+        return;
+    }
+    
+    List<Project> projects = (List<Project>) request.getAttribute("projects");
+%>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Projects - Task Manager</title>
+    <!-- <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .nav { margin-bottom: 20px; }
+        .error { color: red; }
+        .form-group { margin-bottom: 10px; }
+    </style> -->
+    <!-- Prevent caching -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <%
+	    String contextPath = request.getContextPath();
+	%>
+	<link rel="stylesheet" href="<%= contextPath %>/css/style.css">
+	<script src="${pageContext.request.contextPath}/js/noback.js"></script>
+</head>
+<body>
+    <div class="nav">
+        <h2>My Projects</h2>
+        <a href="${pageContext.request.contextPath}/dashboard">Dashboard</a> | 
+        <a href="${pageContext.request.contextPath}/logout">Logout</a>
+    </div>
+    
+    <h3>Create New Project</h3>
+    
+    <% if (request.getAttribute("error") != null) { %>
+        <p class="error"><%= request.getAttribute("error") %></p>
+    <% } %>
+    
+    <form action="${pageContext.request.contextPath}/projects" method="post">
+        <input type="hidden" name="action" value="create">
+        <div class="form-group">
+            <label>Project Name:</label>
+            <input type="text" name="name" required style="width: 300px;">
+        </div>
+        <div class="form-group">
+            <label>Description:</label><br>
+            <textarea name="description" rows="3" style="width: 300px;"></textarea>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Create Project">
+        </div>
+    </form>
+    
+    <hr>
+    
+    <h3>Project List</h3>
+    
+    <% if (projects == null || projects.isEmpty()) { %>
+        <p>No projects found. Create your first project!</p>
+    <% } else { %>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (Project project : projects) { %>
+                <tr>
+                    <td><%= project.getId() %></td>
+                    <td><%= project.getName() %></td>
+                    <td><%= project.getDescription() != null ? project.getDescription() : "" %></td>
+                    <td><%= project.getCreatedAt() %></td>
+                    <td>
+                        <a href="${pageContext.request.contextPath}/projects?action=view&id=<%= project.getId() %>">View Tasks</a> | 
+                        <a href="${pageContext.request.contextPath}/projects?action=edit&id=<%= project.getId() %>">Edit</a> | 
+                        <a href="${pageContext.request.contextPath}/projects?action=delete&id=<%= project.getId() %>" 
+                           onclick="return confirm('Delete project: <%= project.getName() %>?')">Delete</a> | 
+                        <a href="${pageContext.request.contextPath}/tasks?projectId=<%= project.getId() %>">Add Task</a>
+                    </td>
+                </tr>
+                <% } %>
+            </tbody>
+        </table>
+    <% } %>
+</body>
+</html>

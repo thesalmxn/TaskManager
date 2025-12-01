@@ -1,11 +1,34 @@
-.htaccess
-css.php
-rpc/
-sites/site*/admin/
-sites/site*/private/
-sites/site*/public/admin/
-sites/site*/public/setup/
-sites/site*/public/theme/
-textpattern/
-HISTORY.txt
-README.txt
+# Compiled class files
+WEB-INF/classes/
+*.class
+
+# Libraries
+WEB-INF/lib/
+
+# Package Files
+*.jar
+*.war
+*.ear
+
+# IDE files
+.classpath
+.project
+.settings/
+.idea/
+*.iml
+*.iws
+
+# Build directories
+target/
+build/
+dist/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Database files
+*.db
